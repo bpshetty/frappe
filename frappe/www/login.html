@@ -15,7 +15,7 @@
 		<div class="login_header">Login</div>
 
 		<input type="text" id="login_email"
-			class="form-control" placeholder="{{ _('Email address') }}" required autofocus>
+			class="form-control" placeholder="{{ _('Username') }}" required autofocus>
 
 		<input type="password" id="login_password"
 			class="form-control" placeholder="{{ _('Password') }}" required>
@@ -56,8 +56,8 @@
 		{%- endif -%}
 		{% if ldap_settings.enabled %}
 			<p>
-				<button class="btn btn-lg btn-default btn-block btn-login btn-ldpa-login">
-						{{ _("Login via LDAP") }}</button>
+				<button class="btn btn-lg btn-default btn-block btn-login btn-frappe-login">
+						{{ _("Login via ERPNext") }}</button>
 			</p>
 		{% endif %}
 	</div>

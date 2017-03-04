@@ -417,8 +417,8 @@ class User(Document):
 
 			self.username = ""
 
-		# should be made up of characters, numbers and underscore only
-		if self.username and not re.match(r"^[\w]+$", self.username):
+		# should be made up of characters, numbers, underscore, period and hyphens only
+		if self.username and not re.match(r"^[\w\-\.]+$", self.username):
 			frappe.msgprint(_("Username should not contain any special characters other than letters, numbers and underscore"))
 			self.username = ""
 

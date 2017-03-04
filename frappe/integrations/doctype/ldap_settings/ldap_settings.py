@@ -122,19 +122,33 @@ def authenticate_ldap_user(user=None, password=None):
 		# simple_bind_s is synchronous binding to server, it takes two param  DN and password
 		conn.simple_bind_s(settings.base_dn, settings.get_password(raise_exception=False))
 
+	except ldap.LDAPError,e:
+		conn.unbind_s()
+		frappe.throw(_("There is some configuration issue, please contact your system administrator with following details.<BR />Error: {0}".format(str(e))))
+
+	# List of AD/LDAP Attributes to retrive
+	attrList = [str('sAMAccountName'),str('userPrincipalName'),str('uid'),str('givenName'),str('sn'),str('cn'),str('distinguishedName'),str('mail'),str('displayName'),str('name')]
+
+	try:
 		#search for surnames beginning with a
 		#available options for how deep a search you want.
 		#LDAP_SCOPE_BASE, LDAP_SCOPE_ONELEVEL,LDAP_SCOPE_SUBTREE,
 		result = conn.search_s(settings.organizational_unit, ldap.SCOPE_SUBTREE,
-			"uid=*{0}".format(user))
-		
-		print result
-		
+			"{0}={1}".format(settings.login_field,user), attrList)
+
+	except ldap.LDAPError,e:
+		conn.unbind_s()
+		frappe.throw(_("Please contact your system administrator with following details as we are not able to get the required information from LDAP Server.<BR />Error: {0}".format(str(e))))
+
+	print result
+
+	try:
 		for dn, r in result:
 			dn = cstr(dn)
-			params["email"] = cstr(r['mail'][0])
-			params["username"] = cstr(r['uid'][0])
-			params["first_name"] = cstr(r['cn'][0])
+			params["email"] = cstr(r[str(settings.mail)][0])
+			params["username"] = cstr(r[str(settings.login_field)][0])
+			params["first_name"] = cstr(r[str(settings.first_name)][0])
+			params["last_name"] = cstr(r[str(settings.last_name)][0])
 			
 		if dn:
 			conn.simple_bind_s(dn, password)
@@ -142,9 +156,9 @@ def authenticate_ldap_user(user=None, password=None):
 		else:
 			frappe.throw(_("Not a valid LDAP user"))
 
-	except ldap.LDAPError:
+	except ldap.LDAPError,e:
 		conn.unbind_s()
-		frappe.throw(_("Incorrect UserId or Password"))
+		frappe.throw(_("Incorrect UserId or Password.<BR />Error: {0}".format(str(e))))
 
 def create_user(params):
 	if frappe.db.exists("User", params["email"]):
@@ -160,7 +174,7 @@ def create_user(params):
 				"role": _("Blogger")
 			}]
 		})
-
+		
 		user = frappe.get_doc(params).insert(ignore_permissions=True)
 		frappe.db.commit()
 		
