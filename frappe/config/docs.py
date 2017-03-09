@@ -4,7 +4,7 @@ from __future__ import unicode_literals
 
 docs_version = "7.x.x"
 
-source_link = "https://github.com/frappe/frappe"
+source_link = "https://github.com/bpshetty/frappe"
 docs_base_url = "https://frappe.github.io/frappe"
 headline = "Superhero Web Framework"
 sub_heading = "Build extensions to ERPNext or make your own app"
