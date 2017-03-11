@@ -426,9 +426,9 @@ class User(Document):
 
 			self.username = ""
 
-		# should be made up of characters, numbers, underscore, period and hyphens only
+		# should be made up of characters, numbers, underscore, period and hyphen only
 		if self.username and not re.match(r"^[\w\-\.]+$", self.username):
-			frappe.msgprint(_("Username should not contain any special characters other than letters, numbers and underscore"))
+			frappe.msgprint(_("Username should not contain any special characters other than letters, numbers, underscore, period(.) and hyphen(-)"))
 			self.username = ""
 
 	def suggest_username(self):
