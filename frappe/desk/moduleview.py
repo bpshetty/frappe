@@ -124,6 +124,7 @@ def apply_permissions(data):
 
 	user = frappe.get_user()
 	user.build_permissions()
+	user.get_roles()
 
 	allowed_pages = get_allowed_pages()
 
@@ -140,7 +141,7 @@ def apply_permissions(data):
 			if ((item.type=="doctype" and item.name in user.can_read)
 				or (item.type=="page" and item.name in allowed_pages)
 				or (item.type=="report" and item.doctype in user.can_get_report)
-				or item.type=="help"):
+				or (item.type=="help" and "System Manager" in user.roles)):
 
 				new_items.append(item)
 

@@ -21,11 +21,14 @@ login.bind_events = function() {
 			frappe.msgprint(__("Both login and password required"));
 			return false;
 		}
-		if (args.usr=="Administrator") {
-			args.cmd = "login";
-		} else {
-			args.cmd = "{{ ldap_settings.method }}";
+		
+		args.cmd = "login";
+		if ($(".btn-frappe-login").length) {
+			if (args.usr != "Administrator") {
+				args.cmd = "{{ ldap_settings.method }}";
+			}
 		}
+		
 		login.call(args);
 		return false;
 	});
