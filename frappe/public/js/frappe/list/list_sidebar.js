@@ -13,7 +13,7 @@ frappe.views.ListSidebar = Class.extend({
 	init: function(opts) {
 		$.extend(this, opts);
 		this.make();
-		this.get_stats();
+		// this.get_stats();
 		this.cat_tags = [];
 	},
 	make: function() {
@@ -230,6 +230,6 @@ frappe.views.ListSidebar = Class.extend({
 	},
 	reload_stats: function() {
 		this.sidebar.find(".sidebar-stat").remove();
-		this.get_stats();
+		// this.get_stats();
 	},
 });
