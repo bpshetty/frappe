@@ -54,7 +54,7 @@ def import_file_by_path(path, force=False, data_import=False, pre_process=None, 
 			original_modified = doc.get("modified")
 
 			import_doc(doc, data_import=data_import, pre_process=pre_process, 
-				reset_permissions=reset_permissions)
+				reset_permissions=(force or reset_permissions))
 
 			if original_modified:
 				# since there is a new timestamp on the file, update timestamp in
