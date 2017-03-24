@@ -13,7 +13,7 @@
  "page_name": "chat",
  "roles": [
   {
-   "role": "All"
+   "role": "Administrator"
   }
  ],
  "script": null,
