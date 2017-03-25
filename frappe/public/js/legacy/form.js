@@ -348,10 +348,10 @@ _f.Frm.prototype.refresh_header = function(is_a_different_doc) {
 	this.dashboard.refresh();
 
 	if(this.meta.is_submittable &&
-		frappe.perm.get_perm(this.docname, this.doc).submit &&
 		! this.is_dirty() &&
 		! this.is_new() &&
-		this.doc.docstatus===0) {
+		this.doc.docstatus===0 &&
+		this.has_perm("submit")) {
 		this.dashboard.add_comment(__('Submit this document to confirm'), true);
 	}
 
