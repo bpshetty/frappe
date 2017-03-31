@@ -155,8 +155,8 @@ frappe.views.Calendar = frappe.views.CalendarBase.extend({
 				center: 'title',
 				right: 'month,agendaWeek,agendaDay'
 			},
-			editable: true,
-			selectable: true,
+			editable: me.calendar_editable,
+			selectable: me.calendar_selectable,
 			selectHelper: true,
 			forceEventDuration: true,
 			events: function(start, end, timezone, callback) {
