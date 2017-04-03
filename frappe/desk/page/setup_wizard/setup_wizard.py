@@ -87,7 +87,8 @@ def update_user_name(args):
 		if ' ' in first_name:
 			first_name, last_name = first_name.split(' ', 1)
 		doc = frappe.get_doc({
-			"doctype":"User",
+			"doctype":"User",			
+			"user_source": "LDAP", 
 			"email": args.get("email"),
 			"first_name": first_name,
 			"last_name": last_name
