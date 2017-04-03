@@ -41,6 +41,8 @@ class User(Document):
 
 	def before_insert(self):
 		self.flags.in_insert = True
+		if (self.user_source == "LDAP"):
+			self.flags.no_welcome_mail = True
 
 	def validate(self):
 		self.check_demo()

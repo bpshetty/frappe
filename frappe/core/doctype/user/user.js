@@ -31,7 +31,7 @@ frappe.ui.form.on('User', {
 				frm.roles_editor.show();
 			}
 		}
-		if(!has_common(user_roles, ["Administrator", "System Manager"])) {
+		if(!has_common(roles, ["Administrator", "System Manager"])) {
 			frm.set_df_property("user_source", "hidden", 1);
 		}
 	},
