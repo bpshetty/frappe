@@ -185,15 +185,34 @@ class LoginManager:
 		if not (user and pwd):
 			self.fail('Incomplete login details', user=user)
 
-		self.check_if_enabled(user)
-		self.user = self.check_password(user, pwd)
+		self.process_login(user, pwd)
 
-	def check_if_enabled(self, user):
+	def process_login(self, user, pwd):
+		user_source = self.get_user_source(user)
+		if (user_source == 'Frappe'):
+			self.check_if_enabled(user)
+			self.user = self.check_password(user, pwd)
+		elif (user_source == 'LDAP'):
+			self.check_if_enabled(user, 'username')
+			from frappe.integrations.doctype.ldap_settings.ldap_settings import authenticate_ldap_user
+			self.user = (authenticate_ldap_user(user, pwd)).name
+		else:
+			self.fail('User information is having wrong data. Please contact your manager to get access.', user=user)
+			
+	def get_user_source(self, user):
+		""" Get the user source (Frappe or LDAP) from the DB, so that correct login process is invoked """
+		user_source = frappe.db.get_value('User', {'username': user}, 'user_source')
+		if (not user_source):
+			self.fail('User information is missing. Please contact your manager to get access.', user=user)
+			
+		return user_source
+
+	def check_if_enabled(self, user, fieldname='Name'):
 		"""raise exception if user not enabled"""
 		if user=='Administrator': return
-		if not cint(frappe.db.get_value('User', user, 'enabled')):
+		if not cint(frappe.db.get_value('User', {fieldname: user}, 'enabled')):
 			self.fail('User disabled or missing', user=user)
-
+		
 	def check_password(self, user, pwd):
 		"""check password"""
 		try:

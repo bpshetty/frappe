@@ -23,12 +23,6 @@ login.bind_events = function() {
 		}
 		
 		args.cmd = "login";
-		if ($(".btn-frappe-login").length) {
-			if (args.usr != "Administrator") {
-				args.cmd = "{{ ldap_settings.method }}";
-			}
-		}
-		
 		login.call(args);
 		return false;
 	});
@@ -61,19 +55,6 @@ login.bind_events = function() {
 		return false;
 	});
 
-	$(".btn-frappe-login").on("click", function(){
-		var args = {};
-		args.cmd = "login";
-		args.usr = ($("#login_email").val() || "").trim();
-		args.pwd = $("#login_password").val();
-		args.device = "desktop";
-		if(!args.usr || !args.pwd) {
-			login.set_indicator(__("Both login and password required"), 'red');
-			return false;
-		}
-		login.call(args);
-		return false;
-	});
 }
 
 
