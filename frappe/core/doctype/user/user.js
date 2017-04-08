@@ -33,6 +33,7 @@ frappe.ui.form.on('User', {
 		}
 		if(!has_common(roles, ["Administrator", "System Manager"])) {
 			frm.set_df_property("user_source", "hidden", 1);
+			frm.set_df_property("username", "disabled", 1);
 		}
 	},
 	refresh: function(frm) {
@@ -79,17 +80,19 @@ frappe.ui.form.on('User', {
 				}
 			}
 		}
-		if (frm.doc.user_emails){
-			var found =0;
-			for (var i = 0;i<frm.doc.user_emails.length;i++){
-				if (frm.doc.email==frm.doc.user_emails[i].email_id){
-					found = 1;
+		if (has_common(roles, ["Administrator", "System Manager"])) {
+			if (frm.doc.user_emails){
+				var found =0;
+				for (var i = 0;i<frm.doc.user_emails.length;i++){
+					if (frm.doc.email==frm.doc.user_emails[i].email_id){
+						found = 1;
+					}
 				}
-			}
-			if (!found){
-				frm.add_custom_button(__("Create User Email"), function() {
-					frm.events.create_user_email(frm)
-				})
+				if (!found){
+					frm.add_custom_button(__("Create User Email"), function() {
+						frm.events.create_user_email(frm)
+					})
+				}
 			}
 		}
 
