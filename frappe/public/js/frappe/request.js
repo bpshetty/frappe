@@ -94,7 +94,8 @@ frappe.request.call = function(opts) {
 				frappe.msgprint({
 					title:__("Not permitted"), indicator:'red',
 					message: __('You do not have enough permissions to access this resource. Please contact your manager to get access.')});
-			}			
+			}
+
 		},
 		508: function(xhr) {
 			frappe.utils.play_sound("error");
