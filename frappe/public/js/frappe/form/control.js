@@ -600,7 +600,11 @@ frappe.ui.form.ControlCurrency = frappe.ui.form.ControlFloat.extend({
 		// always round based on field precision or currency's precision
 		// this method is also called in this.parse()
 		if (!this.df.precision) {
-			this.df.precision = get_number_format_info(this.get_number_format()).precision;
+			if(frappe.boot.sysdefaults.currency_precision) {
+				this.df.precision = frappe.boot.sysdefaults.currency_precision;
+			} else {
+				this.df.precision = get_number_format_info(this.get_number_format()).precision;
+			}
 		}
 
 		return this.df.precision;
@@ -621,7 +625,7 @@ frappe.ui.form.ControlDate = frappe.ui.form.ControlData.extend({
 		if(value
 			&& ((this.last_value && this.last_value !== this.value)
 				|| (!this.datepicker.selectedDates.length))) {
-			this.datepicker.selectDate(new Date(value));
+			this.datepicker.selectDate(frappe.datetime.str_to_obj(value));
 		}
 	},
 	set_date_options: function() {
@@ -1418,7 +1422,8 @@ frappe.ui.form.ControlLink = frappe.ui.form.ControlData.extend({
 		});
 
 		this.$input.on("awesomplete-open", function(e) {
-			me.$wrapper.css({"z-index": 101});
+			me.$wrapper.css({"z-index": 100});
+			me.$wrapper.find('ul').css({"z-index": 100});
 			me.autocomplete_open = true;
 		});
 
@@ -1604,6 +1609,7 @@ frappe.ui.form.ControlTextEditor = frappe.ui.form.ControlCode.extend({
 		this.make_editor();
 		this.hide_elements_on_mobile();
 		this.setup_drag_drop();
+		this.setup_image_dialog();
 	},
 	make_editor: function() {
 		var me = this;
@@ -1653,7 +1659,7 @@ frappe.ui.form.ControlTextEditor = frappe.ui.form.ControlCode.extend({
 								.trigger('click');
 						}
 					}
-				}
+				},
 			},
 			icons: {
 				'align': 'fa fa-align',
@@ -1758,6 +1764,95 @@ frappe.ui.form.ControlTextEditor = frappe.ui.form.ControlCode.extend({
 	},
 	set_focus: function() {
 		return this.editor.summernote('focus');
+	},
+	set_upload_options: function() {
+		var me = this;
+		this.upload_options = {
+			parent: this.image_dialog.get_field("upload_area").$wrapper,
+			args: {},
+			max_width: this.df.max_width,
+			max_height: this.df.max_height,
+			options: "Image",
+			btn: this.image_dialog.set_primary_action(__("Insert")),
+			on_no_attach: function() {
+				// if no attachmemts,
+				// check if something is selected
+				var selected = me.image_dialog.get_field("select").get_value();
+				if(selected) {
+					me.editor.summernote('insertImage', selected);
+					me.image_dialog.hide();
+				} else {
+					msgprint(__("Please attach a file or set a URL"));
+				}
+			},
+			callback: function(attachment, r) {
+				me.editor.summernote('insertImage', attachment.file_url, attachment.file_name);
+				me.image_dialog.hide();
+			},
+			onerror: function() {
+				me.image_dialog.hide();
+			}
+		}
+
+		if ("is_private" in this.df) {
+			this.upload_options.is_private = this.df.is_private;
+		}
+
+		if(this.frm) {
+			this.upload_options.args = {
+				from_form: 1,
+				doctype: this.frm.doctype,
+				docname: this.frm.docname
+			}
+		} else {
+			this.upload_options.on_attach = function(fileobj, dataurl) {
+				me.image_dialog.hide();
+				me.fileobj = fileobj;
+				me.dataurl = dataurl;
+				if(me.on_attach) {
+					me.on_attach()
+				}
+				if(me.df.on_attach) {
+					me.df.on_attach(fileobj, dataurl);
+				}
+			}
+		}
+	},
+
+	setup_image_dialog: function() {
+		this.note_editor.find('[data-original-title="Image"]').on('click', (e) => {
+			if(!this.image_dialog) {
+				this.image_dialog = new frappe.ui.Dialog({
+					title: __("Image"),
+					fields: [
+						{fieldtype:"HTML", fieldname:"upload_area"},
+						{fieldtype:"HTML", fieldname:"or_attach", options: __("Or")},
+						{fieldtype:"Select", fieldname:"select", label:__("Select from existing attachments") },
+					]
+				});
+			}
+
+			this.image_dialog.show();
+			this.image_dialog.get_field("upload_area").$wrapper.empty();
+
+			// select from existing attachments
+			var attachments = this.frm && this.frm.attachments.get_attachments() || [];
+			var select = this.image_dialog.get_field("select");
+			if(attachments.length) {
+				attachments = $.map(attachments, function(o) { return o.file_url; })
+				select.df.options = [""].concat(attachments);
+				select.toggle(true);
+				this.image_dialog.get_field("or_attach").toggle(true);
+				select.refresh();
+			} else {
+				this.image_dialog.get_field("or_attach").toggle(false);
+				select.toggle(false);
+			}
+			select.$input.val("");
+
+			this.set_upload_options();
+			frappe.upload.make(this.upload_options);
+		});
 	}
 });
 
